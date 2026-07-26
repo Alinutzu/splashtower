@@ -63,6 +63,8 @@ class TDGameEngine {
     this._pigmentClaimed = false;
     this._pigmentAmount = 0;
     this._lastDailyClaim = 0;
+    this.unlockedMaps = [true, false, false, false, false];
+    this._tutorialSeen = false;
 
     this._longPressTimer = null;
     this._longPressStartTime = 0;
@@ -132,6 +134,11 @@ class TDGameEngine {
       const card = e.target.closest('.pick-card');
       if (card) this._applyPick(parseInt(card.dataset.choice, 10));
     });
+
+    this._tutorialStep = 0;
+    document.getElementById('btn-tutorial-next').addEventListener('click', () => this._nextTutorialStep());
+    document.getElementById('btn-tutorial-prev').addEventListener('click', () => this._prevTutorialStep());
+    document.getElementById('btn-tutorial-skip').addEventListener('click', () => this._closeTutorial());
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -227,6 +234,11 @@ class TDGameEngine {
     const data = await this.saveManager.loadProgress();
     this.metaPoints = data.metaPoints || 0;
     this._lastDailyClaim = data.lastDailyClaim || 0;
+    this._tutorialSeen = data.tutorialSeen || false;
+    this.unlockedMaps = data.unlockedMaps || [true, false, false, false, false];
+    if (data.unlockedMaps && data.unlockedMaps.length < MAP_DEFS.length) {
+      for (let i = data.unlockedMaps.length; i < MAP_DEFS.length; i++) this.unlockedMaps.push(false);
+    }
     if (data.upgrades) {
       this.upgrades.startBonus = data.upgrades.startBonus || 0;
       this.upgrades.extraShields = data.upgrades.extraShields || 0;
@@ -235,7 +247,7 @@ class TDGameEngine {
   }
 
   async _saveProgress() {
-    await this.saveManager.saveProgress({ metaPoints: this.metaPoints, upgrades: this.upgrades, lastDailyClaim: this._lastDailyClaim });
+    await this.saveManager.saveProgress({ metaPoints: this.metaPoints, upgrades: this.upgrades, lastDailyClaim: this._lastDailyClaim, unlockedMaps: this.unlockedMaps, tutorialSeen: this._tutorialSeen });
   }
 
   // ---- Shop ----
@@ -282,17 +294,20 @@ class TDGameEngine {
   _buildMapCards() {
     const container = document.getElementById('map-grid');
     container.innerHTML = '';
+    const unlocked = this.unlockedMaps || [true];
     MAP_DEFS.forEach((m, i) => {
+      const locked = !unlocked[i];
       const card = document.createElement('div');
-      card.className = 'map-card' + (i === this.selectedMapIndex ? ' selected' : '');
+      card.className = 'map-card' + (i === this.selectedMapIndex && !locked ? ' selected' : '') + (locked ? ' locked' : '');
       const stars = Array(m.difficulty).fill('★').join('');
-      card.innerHTML = `<div class="map-card-icon">${m.icon}</div><div class="map-card-name">${m.name}</div><div class="map-card-diff"><span class="star">${stars}</span></div>`;
-      card.addEventListener('click', () => this._selectMap(i));
+      card.innerHTML = `<div class="map-card-icon">${locked ? '🔒' : m.icon}</div><div class="map-card-name">${m.name}</div><div class="map-card-diff"><span class="star">${stars}</span></div>`;
+      if (!locked) card.addEventListener('click', () => this._selectMap(i));
       container.appendChild(card);
     });
   }
 
   _selectMap(index) {
+    if (!this.unlockedMaps[index]) return;
     this.selectedMapIndex = index;
     document.querySelectorAll('.map-card').forEach((c, i) => c.classList.toggle('selected', i === index));
   }
@@ -337,6 +352,7 @@ class TDGameEngine {
       try { window.CrazyGames.SDK.game.gameplayStart(); } catch (_) {}
     }
     this.audio.play('wave_start');
+    if (!this._tutorialSeen) setTimeout(() => this._showTutorial(), 300);
   }
 
   restart() {
@@ -838,6 +854,10 @@ class TDGameEngine {
 
     if (wn >= this.wave.totalWaves) {
       this.state = 'VICTORY';
+      const nextIdx = this.selectedMapIndex + 1;
+      if (nextIdx < MAP_DEFS.length && !this.unlockedMaps[nextIdx]) {
+        this.unlockedMaps[nextIdx] = true;
+      }
       this._finalizeRun('victory');
     } else if (wn === 5 || wn === 10 || wn === 15) {
       await this._showAdBreak();
@@ -1110,6 +1130,50 @@ class TDGameEngine {
     }
   }
 
+  // ---- Tutorial ----
+
+  _showTutorial() {
+    if (this._tutorialSeen) return;
+    this._tutorialStep = 0;
+    this._renderTutorialStep();
+    this._showUI('tutorial');
+  }
+
+  _renderTutorialStep() {
+    document.querySelectorAll('.tutorial-step').forEach(el => el.classList.add('hidden'));
+    const stepEl = document.getElementById('tutorial-step-' + (this._tutorialStep + 1));
+    if (stepEl) stepEl.classList.remove('hidden');
+
+    document.querySelectorAll('.tutorial-dot').forEach((dot, i) => dot.classList.toggle('active', i === this._tutorialStep));
+    document.getElementById('btn-tutorial-prev').classList.toggle('hidden', this._tutorialStep === 0);
+    const nextBtn = document.getElementById('btn-tutorial-next');
+    if (this._tutorialStep >= 3) {
+      nextBtn.textContent = 'Am înțeles! 🎮';
+      nextBtn.onclick = () => this._closeTutorial();
+    } else {
+      nextBtn.textContent = 'Înainte →';
+      nextBtn.onclick = () => this._nextTutorialStep();
+    }
+  }
+
+  _nextTutorialStep() {
+    if (this._tutorialStep >= 3) { this._closeTutorial(); return; }
+    this._tutorialStep++;
+    this._renderTutorialStep();
+  }
+
+  _prevTutorialStep() {
+    if (this._tutorialStep <= 0) return;
+    this._tutorialStep--;
+    this._renderTutorialStep();
+  }
+
+  _closeTutorial() {
+    this._tutorialSeen = true;
+    this._saveProgress();
+    this._showUI('none');
+  }
+
   _showUI(name) {
     document.getElementById('ui-menu').classList.toggle('hidden', name !== 'menu');
     document.getElementById('ui-shop').classList.toggle('hidden', name !== 'shop');
@@ -1118,6 +1182,7 @@ class TDGameEngine {
     document.getElementById('ui-victory').classList.toggle('hidden', name !== 'victory');
     document.getElementById('ui-defeat').classList.toggle('hidden', name !== 'defeat');
     document.getElementById('ui-leaderboard').classList.toggle('hidden', name !== 'leaderboard');
+    document.getElementById('ui-tutorial').classList.toggle('hidden', name !== 'tutorial');
   }
 }
 

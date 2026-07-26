@@ -348,6 +348,48 @@ html, body {
 .map-card-name { color: #e0d9c8; font-size: 11px; font-weight: 700; }
 .map-card-diff { color: #605848; font-size: 9px; margin-top: 2px; }
 .map-card-diff .star { color: #ffe600; }
+.map-card.locked { opacity: 0.45; cursor: not-allowed; border-color: rgba(255,255,255,0.04); }
+.map-card.locked:hover { border-color: rgba(255,255,255,0.04); background: rgba(255,255,255,0.02); }
+
+/* ---- Tutorial overlay ---- */
+#ui-tutorial .tutorial-content {
+  max-width: 380px;
+  padding: 28px 24px;
+  text-align: center;
+}
+.tutorial-icon { font-size: 48px; margin-bottom: 8px; }
+.tutorial-title { font-size: 22px; font-weight: 900; color: #00f0ff; margin-bottom: 10px; }
+.tutorial-desc { font-size: 14px; color: #a09880; line-height: 1.5; margin-bottom: 20px; }
+.tutorial-nav { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.tutorial-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.15s ease;
+}
+.tutorial-btn { background: rgba(0,240,255,0.15); color: #00f0ff; }
+.tutorial-btn:hover { background: rgba(0,240,255,0.25); }
+.tutorial-btn:active { transform: scale(0.95); }
+.tutorial-skip { background: transparent; color: #605848; font-size: 11px; }
+.tutorial-skip:hover { background: rgba(255,255,255,0.04); color: #a09880; }
+.tutorial-dots { display: flex; gap: 6px; align-items: center; }
+.tutorial-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  transition: all 0.2s ease;
+}
+.tutorial-dot.active { background: #00f0ff; box-shadow: 0 0 8px rgba(0,240,255,0.4); width: 10px; height: 10px; }
+
+@media (max-width: 768px) {
+  .tutorial-title { font-size: 18px; }
+  .tutorial-icon { font-size: 36px; }
+  #ui-tutorial .tutorial-content { max-width: 300px; padding: 20px 16px; }
+}
 
 /* ============================================================
    MOBILE LAYOUT — FAB + Tower Popup

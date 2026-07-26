@@ -172,6 +172,43 @@
         <button id="btn-lb-close" class="btn-primary">Înapoi</button>
       </div>
     </div>
+
+    <div id="ui-tutorial" class="overlay hidden">
+      <div class="tutorial-content">
+        <div class="tutorial-step" id="tutorial-step-1">
+          <div class="tutorial-icon">🗡️</div>
+          <div class="tutorial-title">Alege un turn</div>
+          <div class="tutorial-desc">Apasă pe un turn din bara laterală pentru a-l selecta. Fiecare turn are un preț și o abilitate unică.</div>
+        </div>
+        <div class="tutorial-step hidden" id="tutorial-step-2">
+          <div class="tutorial-icon">👆</div>
+          <div class="tutorial-title">Plasează-l pe hartă</div>
+          <div class="tutorial-desc">Apasă pe o celulă liberă (nu pe drum) pentru a plasa turnul. Confirmă printr-o a doua atingere.</div>
+        </div>
+        <div class="tutorial-step hidden" id="tutorial-step-3">
+          <div class="tutorial-icon">⚔️</div>
+          <div class="tutorial-title">Dă startul valului</div>
+          <div class="tutorial-desc">Când ești gata, apasă START WAVE. Inamicii vor veni în valuri din ce în ce mai grele.</div>
+        </div>
+        <div class="tutorial-step hidden" id="tutorial-step-4">
+          <div class="tutorial-icon">❤️</div>
+          <div class="tutorial-title">Păstrează-ți baza!</div>
+          <div class="tutorial-desc">Ai 20 HP. Dacă un inamic scapă, pierzi 1 HP. La 0 HP pierzi meciul. Apără-ți baza!</div>
+        </div>
+        <div class="tutorial-nav">
+          <button id="btn-tutorial-prev" class="tutorial-btn hidden">← Înapoi</button>
+          <div class="tutorial-dots" id="tutorial-dots">
+            <span class="tutorial-dot active"></span>
+            <span class="tutorial-dot"></span>
+            <span class="tutorial-dot"></span>
+            <span class="tutorial-dot"></span>
+          </div>
+          <button id="btn-tutorial-next" class="tutorial-btn">Înainte →</button>
+          <button id="btn-tutorial-skip" class="tutorial-btn tutorial-skip">Sari peste</button>
+        </div>
+      </div>
+    </div>
+
     <div id="mobile-tower-bar">
       <div class="mobile-tower-btn" data-tower="Arrow" data-cost="50">
         <div class="tower-icon cyan">🗡️</div>
