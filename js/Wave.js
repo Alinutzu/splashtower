@@ -29,7 +29,7 @@ class Wave {
     this.spawnQueue = [];
 
     const cfg = this.getWaveConfig(waveNum);
-    const spawnInterval = Math.max(0.2, 0.7 - waveNum * 0.025);
+    const baseInterval = Math.max(0.2, 0.7 - waveNum * 0.025);
     const baseCount = 3 + (waveNum - 1) * 3;
     const count = Math.min(baseCount, 60);
 
@@ -52,6 +52,17 @@ class Wave {
         enemies.push({ type, hpMult: cfg.hpMult, speedMult: cfg.speedMult, mod: this._randomModifier(waveNum) });
       }
     }
+
+    let maxNeeded = 0;
+    for (const e of enemies) {
+      const ed = ENEMY_DATA[e.type];
+      if (ed) {
+        const spdPx = ed.speed * cfg.speedMult * 40;
+        const needed = (ed.size * 2) / spdPx;
+        if (needed > maxNeeded) maxNeeded = needed;
+      }
+    }
+    const spawnInterval = Math.max(baseInterval, Math.min(maxNeeded, 1.2));
 
     let t = 0;
     for (const e of enemies) {
