@@ -1007,7 +1007,7 @@ class TDGameEngine {
     this.waveText = null;
     const metaGained = Math.floor(this.totalCoinsEarned / 2);
     this.metaPoints += metaGained;
-    await this._saveProgress();
+    try { await this._saveProgress(); } catch (_) {}
 
     if (type === 'victory') {
       this._pigmentClaimed = false;

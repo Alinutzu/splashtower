@@ -57,21 +57,23 @@ class SaveManager {
   }
 
   _migrateFromLocalStorage() {
-    if (!this._hasCG()) return;
-    const cg = window.CrazyGames.SDK.data;
-    const migratedKey = this._prefix + '_migrated';
-    if (cg.getItem(migratedKey)) return;
-    let found = false;
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith(this._prefix)) {
-        try {
-          cg.setItem(k, localStorage.getItem(k));
-          found = true;
-        } catch (_) {}
+    try {
+      if (!this._hasCG()) return;
+      const cg = window.CrazyGames.SDK.data;
+      const migratedKey = this._prefix + '_migrated';
+      if (cg.getItem(migratedKey)) return;
+      let found = false;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(this._prefix)) {
+          try {
+            cg.setItem(k, localStorage.getItem(k));
+            found = true;
+          } catch (_) {}
+        }
       }
-    }
-    if (found) cg.setItem(migratedKey, '1');
+      if (found) cg.setItem(migratedKey, '1');
+    } catch (_) {}
   }
 
   async saveProgress(data) {
