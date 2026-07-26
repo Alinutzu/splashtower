@@ -5,16 +5,13 @@ class Leaderboard {
   constructor() {
     this.scores = [];
     this._cgAvailable = false;
-    if (window.CrazyGames) this._cgAvailable = window.CrazyGames.SDK && window.CrazyGames.SDK.isAvailable();
   }
 
   async init() {
     await this._loadLocal();
-    if (!this._cgAvailable && window.CrazyGames) {
-      try {
-        this._cgAvailable = window.CrazyGames.SDK && window.CrazyGames.SDK.isAvailable();
-      } catch (_) {}
-    }
+    try {
+      this._cgAvailable = !!(window.CrazyGames && window.CrazyGames.SDK);
+    } catch (_) {}
   }
 
   isAvailable() { return this._cgAvailable; }

@@ -1,10 +1,14 @@
 (function () {
   let engine = null;
 
-  function boot() {
+  async function boot() {
     if (engine) return;
-    engine = new TDGameEngine();
-    engine.init();
+    try {
+      engine = new TDGameEngine();
+      await engine.init();
+    } catch (e) {
+      console.error('[Sketch Towers] init failed:', e);
+    }
   }
 
   if (document.readyState === 'loading') {
