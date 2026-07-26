@@ -195,7 +195,7 @@ class Tower {
   drawUI(ctx, coins) {
     ctx.save();
     const s = this.grid.cellSize; const cx = this.x; const cy = this.y;
-    const panelH = this.type === 'Sniper' ? 72 : 60;
+    const panelH = this.type === 'Sniper' ? 76 : 64;
     ctx.fillStyle = 'rgba(18,18,22,0.92)'; ctx.fillRect(cx - 44, cy + s / 2 + 4, 88, panelH);
     ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.strokeRect(cx - 44, cy + s / 2 + 4, 88, panelH);
     ctx.fillStyle = '#e0d9c8'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
