@@ -973,17 +973,7 @@ class TDGameEngine {
     this.waveText = null;
     const metaGained = Math.floor(this.totalCoinsEarned / 2);
     this.metaPoints += metaGained;
-    this._saveProgress();
-
-    const score = this.totalCoinsEarned * (1 + this.wave.currentWave / 10);
-    await this.leaderboard.submitScore(score, { wave: this.wave.currentWave, map: this.selectedMapIndex });
-
-    if (this._cgInitialized) {
-      try {
-        window.CrazyGames.SDK.game.gameplayStop();
-        if (type === 'victory') window.CrazyGames.SDK.game.happyTime();
-      } catch (_) {}
-    }
+    await this._saveProgress();
 
     if (type === 'victory') {
       this._pigmentClaimed = false;
@@ -1002,6 +992,18 @@ class TDGameEngine {
       this._showUI('defeat');
     }
     this.audio.play('game_over');
+
+    const score = this.totalCoinsEarned * (1 + this.wave.currentWave / 10);
+    try {
+      await this.leaderboard.submitScore(score, { wave: this.wave.currentWave, map: this.selectedMapIndex });
+    } catch (_) {}
+
+    if (this._cgInitialized) {
+      try {
+        window.CrazyGames.SDK.game.gameplayStop();
+        if (type === 'victory') window.CrazyGames.SDK.game.happyTime();
+      } catch (_) {}
+    }
   }
 
   render() {
