@@ -1,0 +1,105 @@
+const MAP_DEFS = [
+  {
+    id: 'classic',
+    name: 'Clasic',
+    icon: '🗺️',
+    desc: 'S-curve clasic. Echilibrat.',
+    difficulty: 1,
+    waypoints: [
+      { col: -1, row: 2 },
+      { col: 7, row: 2 },
+      { col: 7, row: 5 },
+      { col: 3, row: 5 },
+      { col: 3, row: 8 },
+      { col: 15, row: 8 },
+      { col: 15, row: 10 },
+      { col: 20, row: 10 },
+    ],
+  },
+  {
+    id: 'spiral',
+    name: 'Spirală',
+    icon: '🌀',
+    desc: 'Traseu în spirală. Drum lung.',
+    difficulty: 2,
+    waypoints: [
+      { col: -1, row: 1 },
+      { col: 18, row: 1 },
+      { col: 18, row: 10 },
+      { col: 1, row: 10 },
+      { col: 1, row: 3 },
+      { col: 16, row: 3 },
+      { col: 16, row: 8 },
+      { col: 5, row: 8 },
+      { col: 5, row: 5 },
+      { col: 12, row: 5 },
+      { col: 12, row: 6 },
+      { col: 20, row: 6 },
+    ],
+  },
+  {
+    id: 'winding',
+    name: 'Labirint',
+    icon: '🐍',
+    desc: 'Trei treceri orizontale. Foarte lung.',
+    difficulty: 3,
+    waypoints: [
+      { col: -1, row: 0 },
+      { col: 18, row: 0 },
+      { col: 18, row: 3 },
+      { col: 1, row: 3 },
+      { col: 1, row: 6 },
+      { col: 18, row: 6 },
+      { col: 18, row: 9 },
+      { col: 1, row: 9 },
+      { col: 1, row: 11 },
+      { col: 20, row: 11 },
+    ],
+  },
+  {
+    id: 'figure8',
+    name: 'Opt',
+    icon: '♾️',
+    desc: 'Formă de opt. Traseu sinuos.',
+    difficulty: 2,
+    waypoints: [
+      { col: -1, row: 1 },
+      { col: 9, row: 1 },
+      { col: 9, row: 5 },
+      { col: 3, row: 5 },
+      { col: 3, row: 10 },
+      { col: 19, row: 10 },
+      { col: 19, row: 5 },
+      { col: 14, row: 5 },
+      { col: 14, row: 1 },
+      { col: 20, row: 1 },
+    ],
+  },
+  {
+    id: 'gauntlet',
+    name: 'Galeată',
+    icon: '⚔️',
+    desc: 'Zigzag strâns. Plasare dificilă.',
+    difficulty: 3,
+    waypoints: [
+      { col: -1, row: 1 },
+      { col: 4, row: 1 },
+      { col: 4, row: 10 },
+      { col: 9, row: 10 },
+      { col: 9, row: 1 },
+      { col: 14, row: 1 },
+      { col: 14, row: 10 },
+      { col: 20, row: 10 },
+    ],
+  },
+];
+
+function buildWaypoints(mapDef, cellSize) {
+  return mapDef.waypoints.map(wp => ({
+    x: wp.col < 0 ? 0 : wp.col >= 20 ? 20 * cellSize : wp.col * cellSize + cellSize / 2,
+    y: wp.row * cellSize + cellSize / 2,
+  }));
+}
+
+window.MAP_DEFS = MAP_DEFS;
+window.buildWaypoints = buildWaypoints;

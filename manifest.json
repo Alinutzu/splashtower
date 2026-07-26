@@ -1,0 +1,24 @@
+{
+  "name": "Sketch Towers — Splash TD",
+  "short_name": "Sketch Towers",
+  "description": "Desenează-ți apărarea. Fiecare linie contează.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1a1a1a",
+  "theme_color": "#ff00aa",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect width='192' height='192' fill='%231a1a1a'/%3E%3Cpath d='M60 130 L96 50 L132 130Z' fill='none' stroke='%2300f0ff' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='96' cy='82' r='18' fill='%23ff00aa'/%3E%3Ctext x='96' y='160' text-anchor='middle' fill='%23e0d9c8' font-family='sans-serif' font-size='20' font-weight='bold'%3EST%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Crect width='512' height='512' fill='%231a1a1a'/%3E%3Cpath d='M160 340 L256 140 L352 340Z' fill='none' stroke='%2300f0ff' stroke-width='10' stroke-linejoin='round'/%3E%3Ccircle cx='256' cy='220' r='36' fill='%23ff00aa'/%3E%3Ctext x='256' y='430' text-anchor='middle' fill='%23e0d9c8' font-family='sans-serif' font-size='48' font-weight='bold'%3EST%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

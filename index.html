@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#ff00aa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sketch Towers">
+  <link rel="manifest" href="manifest.json">
+  <title>Sketch Towers — Splash TD</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js" async></script>
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="hud-top">
+      <button id="btn-pause" class="hud-btn" title="Pauză">⏸</button>
+      <button id="btn-mute" class="hud-btn" title="Mute">🔊</button>
+      <button id="btn-speed" class="hud-btn" title="Viteză">1x</button>
+      <div id="hud-coins">🪙 <span id="coins-value">0</span></div>
+      <div id="hud-wave">Val <span id="wave-current">0</span>/<span id="wave-total">20</span></div>
+      <div id="hud-hp">
+        <span id="hp-label">❤️</span>
+        <div id="hp-bar"><div id="hp-fill"></div></div>
+        <span id="hp-text">20/20</span>
+      </div>
+    </div>
+
+    <div id="hud-sidebar">
+      <div class="sidebar-title">TURNURI</div>
+      <div class="tower-btn" data-tower="Arrow" data-cost="50">
+        <div class="tower-icon cyan">🗡️</div>
+        <div class="tower-info">
+          <div class="tower-name">Arrow</div>
+          <div class="tower-cost">50🪙</div>
+        </div>
+      </div>
+      <div class="tower-btn" data-tower="Cannon" data-cost="100">
+        <div class="tower-icon magenta">💣</div>
+        <div class="tower-info">
+          <div class="tower-name">Cannon</div>
+          <div class="tower-cost">100🪙</div>
+        </div>
+      </div>
+      <div class="tower-btn" data-tower="Ice" data-cost="75">
+        <div class="tower-icon blue">❄️</div>
+        <div class="tower-info">
+          <div class="tower-name">Ice</div>
+          <div class="tower-cost">75🪙</div>
+        </div>
+      </div>
+      <div class="tower-btn" data-tower="Lightning" data-cost="120">
+        <div class="tower-icon yellow">⚡</div>
+        <div class="tower-info">
+          <div class="tower-name">Lightning</div>
+          <div class="tower-cost">120🪙</div>
+        </div>
+      </div>
+      <div class="tower-btn" data-tower="Sniper" data-cost="150">
+        <div class="tower-icon sniper">🎯</div>
+        <div class="tower-info">
+          <div class="tower-name">Sniper</div>
+          <div class="tower-cost">150🪙</div>
+        </div>
+      </div>
+      <button id="btn-start-wave" class="btn-wave">START WAVE</button>
+    </div>
+
+    <div id="ui-menu" class="overlay">
+      <div class="overlay-content">
+        <h1 class="game-title">Sketch Towers</h1>
+        <p class="subtitle">Splash Tower Defense</p>
+        <p class="tagline">Desenează-ți apărarea. Fiecare linie contează.</p>
+        <div id="menu-meta">🪙 Puncte permanente: <span id="menu-meta-points">0</span></div>
+        <div id="map-select">
+          <div class="map-select-title">ALEGE HARTA</div>
+          <div class="map-grid" id="map-grid"></div>
+        </div>
+        <button id="btn-play" class="btn-primary">▶ PLAY</button>
+        <button id="btn-daily" class="btn-secondary" style="border-color:rgba(255,230,0,0.3)">🎁 Recompensă Zilnică</button>
+        <button id="btn-shop" class="btn-secondary">🏪 Shop</button>
+        <button id="btn-leaderboard" class="btn-secondary">🏆 Leaderboard</button>
+      </div>
+    </div>
+
+    <div id="ui-shop" class="overlay hidden">
+      <div class="overlay-content shop-content">
+        <h2 class="shop-title">MAGAZIN PERMANENT</h2>
+        <div class="meta-display">🪙 <span id="shop-meta-points">0</span> puncte</div>
+        <div class="upgrade-list">
+          <div class="upgrade-item" data-upgrade="startBonus">
+            <div class="upg-icon">💰</div>
+            <div class="upg-body">
+              <div class="upg-name">Bonus Start</div>
+              <div class="upg-desc">+50 monede în plus la start</div>
+              <div class="upg-bar"><div class="upg-fill"></div></div>
+            </div>
+            <button class="btn-upg" data-upg="startBonus">—</button>
+          </div>
+          <div class="upgrade-item" data-upgrade="extraShields">
+            <div class="upg-icon">🛡️</div>
+            <div class="upg-body">
+              <div class="upg-name">Scuturi</div>
+              <div class="upg-desc">+5 HP maxim</div>
+              <div class="upg-bar"><div class="upg-fill"></div></div>
+            </div>
+            <button class="btn-upg" data-upg="extraShields">—</button>
+          </div>
+          <div class="upgrade-item" data-upgrade="architectDiscount">
+            <div class="upg-icon">📐</div>
+            <div class="upg-body">
+              <div class="upg-name">Arhitect</div>
+              <div class="upg-desc">-5% cost turnuri</div>
+              <div class="upg-bar"><div class="upg-fill"></div></div>
+            </div>
+            <button class="btn-upg" data-upg="architectDiscount">—</button>
+          </div>
+        </div>
+        <button id="btn-shop-close" class="btn-primary">Înapoi</button>
+      </div>
+    </div>
+
+    <div id="ui-pick" class="overlay hidden">
+      <div class="overlay-content pick-content">
+        <h2 class="pick-title">Alege un bonus</h2>
+        <p class="pick-sub">Valul <span id="pick-wave">0</span> completat!</p>
+        <div class="pick-choices" id="pick-choices"></div>
+      </div>
+    </div>
+
+    <div id="ui-paused" class="overlay hidden">
+      <div class="overlay-content">
+        <h2 class="pause-text">PAUZĂ</h2>
+        <button id="btn-resume" class="btn-primary">▶ Continuă</button>
+        <button id="btn-pause-shop" class="btn-secondary">🏪 Shop</button>
+        <button id="btn-pause-lb" class="btn-secondary">🏆 Leaderboard</button>
+        <button id="btn-pause-menu" class="btn-secondary">🏠 Meniu</button>
+      </div>
+    </div>
+
+    <div id="ui-victory" class="overlay hidden">
+      <div class="overlay-content">
+        <h2 class="victory-text">VICTORY!</h2>
+        <p>Coins colectați: <span id="victory-coins">0</span></p>
+        <p>Puncte permanente: +<span id="victory-meta">0</span> 🪙</p>
+        <button id="btn-pigment" class="btn-primary" style="background:linear-gradient(135deg,#00ff88,#ffe600)">💰 2x Puncte</button>
+        <button id="btn-retry-v" class="btn-primary">↻ Joacă din nou</button>
+        <button id="btn-menu-v" class="btn-secondary">Meniu</button>
+      </div>
+    </div>
+
+    <div id="ui-defeat" class="overlay hidden">
+      <div class="overlay-content">
+        <h2 class="defeat-text">DEFEAT</h2>
+        <p>Valul <span id="defeat-wave">0</span> · Coins: <span id="defeat-coins">0</span></p>
+        <p>Puncte permanente: +<span id="defeat-meta">0</span> 🪙</p>
+        <button id="btn-revive" class="btn-primary" style="background:linear-gradient(135deg,#00ff88,#00aaff)">💀 Revive (reclamă)</button>
+        <button id="btn-retry-d" class="btn-primary">↻ Încearcă din nou</button>
+        <button id="btn-menu-d" class="btn-secondary">Meniu</button>
+      </div>
+    </div>
+
+    <div id="ui-leaderboard" class="overlay hidden">
+      <div class="overlay-content lb-content">
+        <h2 class="lb-title">🏆 LEADERBOARD</h2>
+        <div class="lb-list" id="lb-list">
+          <div class="lb-empty">Niciun scor înregistrat</div>
+        </div>
+        <button id="btn-lb-close" class="btn-primary">Înapoi</button>
+      </div>
+    </div>
+    <div id="mobile-tower-bar">
+      <div class="mobile-tower-btn" data-tower="Arrow" data-cost="50">
+        <div class="tower-icon cyan">🗡️</div>
+        <div class="tower-name">Arrow</div>
+        <div class="tower-cost">50🪙</div>
+      </div>
+      <div class="mobile-tower-btn" data-tower="Cannon" data-cost="100">
+        <div class="tower-icon magenta">💣</div>
+        <div class="tower-name">Cannon</div>
+        <div class="tower-cost">100🪙</div>
+      </div>
+      <div class="mobile-tower-btn" data-tower="Ice" data-cost="75">
+        <div class="tower-icon blue">❄️</div>
+        <div class="tower-name">Ice</div>
+        <div class="tower-cost">75🪙</div>
+      </div>
+      <div class="mobile-tower-btn" data-tower="Lightning" data-cost="120">
+        <div class="tower-icon yellow">⚡</div>
+        <div class="tower-name">Lightning</div>
+        <div class="tower-cost">120🪙</div>
+      </div>
+      <div class="mobile-tower-btn" data-tower="Sniper" data-cost="150">
+        <div class="tower-icon sniper">🎯</div>
+        <div class="tower-name">Sniper</div>
+        <div class="tower-cost">150🪙</div>
+      </div>
+    </div>
+
+    <button id="btn-fab-wave" class="hidden">⚔️ START</button>
+
+    <div id="tower-popup" class="hidden">
+      <div id="popup-tower-name"></div>
+      <div id="popup-tower-stats"></div>
+      <div id="popup-actions">
+        <button id="popup-btn-upgrade" class="popup-action-btn popup-upgrade">⬆ Upgrade</button>
+        <button id="popup-btn-sell" class="popup-action-btn popup-sell">💰 Sell</button>
+        <button id="popup-btn-target" class="popup-action-btn popup-target hidden">🎯 Target</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/Maps.js"></script>
+  <script src="js/SaveManager.js"></script>
+  <script src="js/AudioManager.js"></script>
+  <script src="js/ParticleSystem.js"></script>
+  <script src="js/Grid.js"></script>
+  <script src="js/Projectile.js"></script>
+  <script src="js/Tower.js"></script>
+  <script src="js/Enemy.js"></script>
+  <script src="js/Wave.js"></script>
+  <script src="js/Leaderboard.js"></script>
+  <script src="js/TDGameEngine.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
