@@ -366,7 +366,11 @@ class TDGameEngine {
     if (this._cgInitialized && (this.state === 'VICTORY' || this.state === 'DEFEAT')) {
       try { window.CrazyGames.SDK.ad.requestAd('midgame'); } catch (_) {}
     }
-    this.state = 'MENU'; this.paused = false; this._updateMenuUI(); this._updateDailyRewardUI(); this._showUI('menu');
+    this.state = 'MENU'; this.paused = false; this._updateMenuUI(); this._updateDailyRewardUI();
+    if (!this.unlockedMaps[this.selectedMapIndex]) {
+      this.selectedMapIndex = this.unlockedMaps.findIndex(u => u);
+    }
+    this._buildMapCards(); this._showUI('menu');
   }
 
   _togglePause() {
