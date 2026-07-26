@@ -188,7 +188,6 @@ class TDGameEngine {
       if (window.CrazyGames && window.CrazyGames.SDK) {
         await window.CrazyGames.SDK.init();
         this._cgInitialized = true;
-        window.CrazyGames.SDK.game.gameplayStart();
 
         document.addEventListener('crazygames_sdk_focus_loss', () => {
           if (this.state !== 'MENU' && this.state !== 'VICTORY' && this.state !== 'DEFEAT' && this.state !== 'PAUSED') {
@@ -334,6 +333,9 @@ class TDGameEngine {
     this._updateHUD();
     this._updateSidebarSelection();
     this._updateSidebarCosts();
+    if (this._cgInitialized) {
+      try { window.CrazyGames.SDK.game.gameplayStart(); } catch (_) {}
+    }
     this.audio.play('wave_start');
   }
 
