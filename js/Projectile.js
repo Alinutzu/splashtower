@@ -72,8 +72,11 @@ class Projectile {
     this.x += (dx / dist) * move;
     this.y += (dy / dist) * move;
 
-    this.trail.push({ x: this.x, y: this.y });
-    if (this.trail.length > this.maxTrail) this.trail.shift();
+    const _last = this.trail[this.trail.length - 1];
+    if (!_last || Math.abs(this.x - _last.x) > 5 || Math.abs(this.y - _last.y) > 5) {
+      this.trail.push({ x: this.x, y: this.y });
+      if (this.trail.length > this.maxTrail) this.trail.shift();
+    }
   }
 
   _hit(dt, enemies) {
@@ -198,7 +201,7 @@ class Projectile {
     ctx.save();
     for (let i = 0; i < this.trail.length; i++) {
       const alpha = ((i + 1) / this.trail.length) * 0.4;
-      const size = ((i + 1) / this.trail.length) * (this.type === 'cannon' ? 4 : this.type === 'sniper' ? 2 : 3);
+      const size = ((i + 1) / this.trail.length) * (this.type === 'cannon' ? 3 : this.type === 'sniper' ? 2 : 2.5);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = this.color;
       ctx.beginPath();
@@ -209,7 +212,7 @@ class Projectile {
     ctx.fillStyle = this.color;
     ctx.shadowColor = this.color;
     ctx.shadowBlur = this.type === 'cannon' ? 18 : this.type === 'sniper' ? 8 : 12;
-    const r = this.type === 'cannon' ? 6 : this.type === 'sniper' ? 3 : 4;
+    const r = this.type === 'cannon' ? 5 : this.type === 'sniper' ? 3 : 3.5;
     ctx.beginPath();
     ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
     ctx.fill();
