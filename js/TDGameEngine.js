@@ -969,6 +969,7 @@ class TDGameEngine {
   }
 
   _finalizeRun(type) {
+    this.waveText = null;
     const metaGained = Math.floor(this.totalCoinsEarned / 2);
     this.metaPoints += metaGained;
     this._saveProgress();
