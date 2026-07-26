@@ -1150,14 +1150,8 @@ class TDGameEngine {
 
     document.querySelectorAll('.tutorial-dot').forEach((dot, i) => dot.classList.toggle('active', i === this._tutorialStep));
     document.getElementById('btn-tutorial-prev').classList.toggle('hidden', this._tutorialStep === 0);
-    const nextBtn = document.getElementById('btn-tutorial-next');
-    if (this._tutorialStep >= 3) {
-      nextBtn.textContent = 'Am înțeles! 🎮';
-      nextBtn.onclick = () => this._closeTutorial();
-    } else {
-      nextBtn.textContent = 'Înainte →';
-      nextBtn.onclick = () => this._nextTutorialStep();
-    }
+    document.getElementById('btn-tutorial-next').textContent =
+      this._tutorialStep >= 3 ? 'Am înțeles! 🎮' : 'Înainte →';
   }
 
   _nextTutorialStep() {
