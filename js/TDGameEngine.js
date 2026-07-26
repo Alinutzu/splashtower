@@ -387,11 +387,10 @@ class TDGameEngine {
     btn.classList.toggle('speed-active', this.gameSpeed > 1);
   }
 
-  async _showAdBreak(callback) {
+  async _showAdBreak() {
     if (this._cgInitialized) {
       try { await window.CrazyGames.SDK.ad.requestAd('midgame'); } catch (_) {}
     }
-    callback();
   }
 
   startWave() {
@@ -828,7 +827,7 @@ class TDGameEngine {
     this._updateHUD();
   }
 
-  _onWaveComplete() {
+  async _onWaveComplete() {
     const wn = this.wave.currentWave;
     const bonus = 20 + wn * 5;
     this.coins += bonus;
@@ -841,7 +840,8 @@ class TDGameEngine {
       this.state = 'VICTORY';
       this._finalizeRun('victory');
     } else if (wn === 5 || wn === 10 || wn === 15) {
-      this._showAdBreak(() => this._showPick(wn));
+      await this._showAdBreak();
+      this._showPick(wn);
     } else if (wn === 3) {
       this._showPick(wn);
     } else {
