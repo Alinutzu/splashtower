@@ -746,7 +746,7 @@ class TDGameEngine {
     if (!cfg) return;
     const discount = this._architectDiscount + (this.buffs.towerCostReduction || 0);
     const finalCost = Math.ceil(cfg.cost * (1 - discount));
-    if (this.coins < finalCost) return;
+    if (this.coins < finalCost) { this._showToast('Nu ai suficienți bani!'); return; }
     this.coins -= finalCost;
     const tower = new Tower(col, row, this.grid, this.selectedTowerType, this.buffs);
     tower.discount = discount;
@@ -759,6 +759,7 @@ class TDGameEngine {
 
   _sellTower(tower) {
     const value = tower.getSellValue();
+    this._showToast('Turn vândut! +' + value + '🪙');
     this.coins += value;
     this.towers = this.towers.filter(t => t !== tower);
     if (this.selectedGridTower === tower) this.selectedGridTower = null;
@@ -769,8 +770,8 @@ class TDGameEngine {
 
   _upgradeTower(tower) {
     const cost = tower.getUpgradeCost();
-    if (cost < 0) return;
-    if (this.coins < cost) return;
+    if (cost < 0) { this._showToast('Turnul e deja la nivel maxim!'); return; }
+    if (this.coins < cost) { this._showToast('Nu ai suficienți bani!'); return; }
     this.coins -= cost;
     tower.upgrade(this.buffs);
     this.audio.play('tower_upgrade');
@@ -1170,6 +1171,18 @@ class TDGameEngine {
     this._tutorialSeen = true;
     this._saveProgress();
     this._showUI('none');
+  }
+
+  _showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('toast-out');
+      el.addEventListener('animationend', () => el.remove());
+    }, 2000);
   }
 
   _showUI(name) {
