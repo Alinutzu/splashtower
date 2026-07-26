@@ -42,6 +42,13 @@ class Enemy {
     this.x = waypoints[0].x;
     this.y = waypoints[0].y;
     this.progressToNext = 0;
+    this._segDist = 0;
+    const _firstTarget = this.waypoints[1];
+    if (_firstTarget) {
+      const _dx = _firstTarget.x - this.x;
+      const _dy = _firstTarget.y - this.y;
+      this._segDist = Math.sqrt(_dx * _dx + _dy * _dy);
+    }
 
     this.slowTimer = 0;
     this.isHealer = type === 'Healer';
@@ -95,15 +102,23 @@ class Enemy {
     const dist = Math.sqrt(dx * dx + dy * dy);
     const moveAmount = this.speed * (this.grid ? this.grid.cellSize : 40) * dt;
 
+    const segLen = this._segDist || dist;
+    this.progressToNext = Math.min(0.999, this.progressToNext + moveAmount / segLen);
+
     if (moveAmount >= dist) {
       this.x = target.x;
       this.y = target.y;
       this.waypointIndex++;
       this.progressToNext = 0;
+      const _nextTarget = this.waypoints[this.waypointIndex + 1];
+      if (_nextTarget) {
+        const _nx = _nextTarget.x - this.x;
+        const _ny = _nextTarget.y - this.y;
+        this._segDist = Math.sqrt(_nx * _nx + _ny * _ny);
+      }
     } else {
       this.x += (dx / dist) * moveAmount;
       this.y += (dy / dist) * moveAmount;
-      this.progressToNext = moveAmount / dist;
     }
 
     if (this.x >= (this.grid ? this.grid.width : 800)) {
