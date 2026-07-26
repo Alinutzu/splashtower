@@ -499,7 +499,7 @@ class TDGameEngine {
   _onClick(e) {
     if (this.state === 'MENU' || this.state === 'VICTORY' || this.state === 'DEFEAT' || this.state === 'PICK' || this.state === 'PAUSED') return;
     if (this.state === 'SHOP') return;
-    if (this._lastTouchTime && Date.now() - this._lastTouchTime < 500) return;
+    if (this._lastTouchTime && Date.now() - this._lastTouchTime < 300) return;
 
     const pos = this._getCanvasCoords(e);
     const cell = this.grid.pixelToCell(pos.x, pos.y);
@@ -870,6 +870,7 @@ class TDGameEngine {
       this.hp = Math.min(this.maxHp, this.hp + 5);
       this.state = 'WAVE';
       this._showUI('none');
+      document.getElementById('btn-pause').textContent = '⏸';
       document.getElementById('btn-revive').classList.add('hidden');
       this.audio.play('tower_upgrade');
       if (this._cgInitialized) window.CrazyGames.SDK.game.gameplayStart();
@@ -968,14 +969,14 @@ class TDGameEngine {
     this._showUI('menu');
   }
 
-  _finalizeRun(type) {
+  async _finalizeRun(type) {
     this.waveText = null;
     const metaGained = Math.floor(this.totalCoinsEarned / 2);
     this.metaPoints += metaGained;
     this._saveProgress();
 
     const score = this.totalCoinsEarned * (1 + this.wave.currentWave / 10);
-    this.leaderboard.submitScore(score, { wave: this.wave.currentWave, map: this.selectedMapIndex });
+    await this.leaderboard.submitScore(score, { wave: this.wave.currentWave, map: this.selectedMapIndex });
 
     if (this._cgInitialized) {
       try {
