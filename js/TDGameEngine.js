@@ -1025,8 +1025,8 @@ class TDGameEngine {
 
     if (this._cgInitialized) {
       try {
-        window.CrazyGames.SDK.game.gameplayStop();
         if (type === 'victory') window.CrazyGames.SDK.game.happyTime();
+        window.CrazyGames.SDK.game.gameplayStop();
       } catch (_) {}
     }
   }
