@@ -196,6 +196,15 @@ class TDGameEngine {
         await window.CrazyGames.SDK.init();
         this._cgInitialized = true;
 
+        const applyMute = (muted) => {
+          this.audio.setMuted(muted);
+          document.getElementById('btn-mute').textContent = muted ? '🔇' : '🔊';
+        };
+        if (window.CrazyGames.SDK.game.settings.muteAudio) applyMute(true);
+        window.CrazyGames.SDK.game.addSettingsChangeListener(s => {
+          if (s.muteAudio !== undefined) applyMute(s.muteAudio);
+        });
+
         document.addEventListener('crazygames_sdk_focus_loss', () => {
           if (this.state !== 'MENU' && this.state !== 'VICTORY' && this.state !== 'DEFEAT' && this.state !== 'PAUSED') {
             this._prePauseState = this.state;

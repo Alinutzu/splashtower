@@ -66,6 +66,13 @@ class AudioManager {
 
   isMuted() { return this._muted; }
 
+  setMuted(muted) {
+    this._muted = muted;
+    if (this._masterGain) {
+      this._masterGain.gain.setTargetAtTime(this._muted ? 0 : this._volume, this._ctx.currentTime, 0.02);
+    }
+  }
+
   _makeBuffer(duration, fillFn) {
     const sr = this._ctx.sampleRate;
     const length = Math.ceil(sr * duration);
