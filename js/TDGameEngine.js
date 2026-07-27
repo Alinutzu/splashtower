@@ -180,8 +180,10 @@ class TDGameEngine {
     const mobileBar = document.getElementById('mobile-tower-bar');
     const sidebarW = sidebar && getComputedStyle(sidebar).display !== 'none' ? 120 : 0;
     const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? 76 : 0;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobileLayout = sidebarW === 0 && mobileBarH > 0;
     const avW = wrapper.clientWidth - sidebarW;
-    const avH = wrapper.clientHeight - 44 - mobileBarH;
+    const avH = wrapper.clientHeight - (isPortrait && isMobileLayout ? 0 : 44) - mobileBarH;
     if (avW <= 0 || avH <= 0) return;
     const ar = 800 / 600;
     let w = avW, h = avW / ar;

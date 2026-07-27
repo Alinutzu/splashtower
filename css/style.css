@@ -551,20 +551,10 @@ html, body {
    MOBILE BREAKPOINT
    ============================================================ */
 @media (max-width: 768px) {
-  #hud-sidebar { display: none; }
-  #mobile-tower-bar { display: flex; }
-
-  #game-canvas {
-    max-width: 100%;
-    max-height: calc(100vh - 44px - 80px);
-    margin-top: 44px;
-  }
-
   #hud-top {
     gap: 12px;
     padding: 0 10px;
   }
-
   #hud-hp { gap: 4px; }
   #hp-bar { width: 60px; }
   #hp-text { font-size: 12px; min-width: 36px; }
@@ -572,16 +562,56 @@ html, body {
   #hud-wave { font-size: 14px; }
   .hud-btn { width: 28px; height: 28px; font-size: 14px; }
 
+  #tower-popup {
+    min-width: 180px;
+    padding: 12px;
+  }
+}
+
+/* ---- Mobile Portrait: bottom bar layout ---- */
+@media (max-width: 768px) and (orientation: portrait) {
+  #game-wrapper {
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  #hud-sidebar { display: none; }
+  #mobile-tower-bar { display: flex; }
+
+  #game-canvas {
+    max-width: 100%;
+    max-height: calc(100vh - 80px);
+    margin-top: 0;
+  }
+
   #btn-fab-wave {
     bottom: 90px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     width: 56px;
     height: 56px;
     font-size: 10px;
   }
+}
 
-  #tower-popup {
-    min-width: 180px;
-    padding: 12px;
+/* ---- Mobile Landscape: sidebar layout ---- */
+@media (max-width: 768px) and (orientation: landscape) {
+  #game-wrapper {
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mobile-tower-bar { display: none; }
+
+  #game-canvas {
+    max-width: calc(100% - 120px);
+    max-height: calc(100vh - 44px);
+    margin-top: 44px;
+  }
+
+  #btn-fab-wave {
+    display: none !important;
   }
 }
 
