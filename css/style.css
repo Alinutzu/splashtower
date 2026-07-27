@@ -594,7 +594,7 @@ html, body {
   }
 }
 
-/* ---- Mobile Landscape: sidebar layout ---- */
+/* ---- Mobile Landscape: compact sidebar + full-width canvas ---- */
 @media (max-width: 768px) and (orientation: landscape) {
   #game-wrapper {
     align-items: center;
@@ -611,6 +611,28 @@ html, body {
 
   #btn-fab-wave {
     display: none !important;
+  }
+
+  /* Compact sidebar buttons — icon + text inline, smaller */
+  #hud-sidebar {
+    gap: 3px;
+    padding: 6px;
+  }
+  .sidebar-title { font-size: 8px; margin-bottom: 2px; letter-spacing: 1px; }
+
+  .tower-btn {
+    flex-direction: row;
+    padding: 4px 6px;
+    gap: 4px;
+  }
+  .tower-icon { font-size: 14px; width: 20px; height: 20px; }
+  .tower-info { text-align: left; flex: 1; min-width: 0; }
+  .tower-name { font-size: 8px; }
+  .tower-cost { font-size: 8px; }
+
+  .btn-wave {
+    padding: 5px 8px;
+    font-size: 10px;
   }
 }
 
