@@ -580,7 +580,7 @@ html, body {
 /* ============================================================
    MOBILE BREAKPOINT
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) {
   #hud-top {
     gap: 12px;
     padding: 0 10px;
@@ -641,7 +641,7 @@ html, body {
 }
 
 /* ---- Mobile Landscape: 2-column grid sidebar, no scroll needed ---- */
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) {
   #game-wrapper {
     align-items: center;
     justify-content: flex-start;
@@ -740,12 +740,12 @@ html, body {
   to   { opacity: 0; transform: translateY(-8px); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 500px) {
   #toast-container { bottom: 100px; }
   .toast { font-size: 12px; padding: 8px 16px; }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 501px) {
   #btn-fab-wave { display: none !important; }
   #tower-popup { display: none !important; }
 }
