@@ -1,8 +1,9 @@
-window.DAMAGE_NUMBERS = window.DAMAGE_NUMBERS || [];
-window.SCREEN_SHAKE = 0;
+window.__st = window.__st || {};
+window.__st.damageNumbers = window.__st.damageNumbers || [];
+window.__st.screenShake = 0;
 
 function addDamageNumber(x, y, text, color) {
-  window.DAMAGE_NUMBERS.push({ x, y, text, color: color || '#ffe600', vy: -50, life: 0, maxLife: 0.9 });
+  window.__st.damageNumbers.push({ x, y, text, color: color || '#ffe600', vy: -50, life: 0, maxLife: 0.9 });
 }
 
 class Projectile {
@@ -98,7 +99,7 @@ class Projectile {
           hitCount++;
         }
       }
-      if (hitCount > 0) window.SCREEN_SHAKE = Math.max(window.SCREEN_SHAKE, 6);
+      if (hitCount > 0) window.__st.screenShake = Math.max(window.__st.screenShake, 6);
     } else if (this.type === 'ice' && this.slowFactor > 0) {
       this.alive = false;
       if (hitTarget && hitTarget.alive) {
@@ -116,7 +117,7 @@ class Projectile {
         }
         hitTarget.takeDamage(dmg);
         addDamageNumber(hitTarget.x, hitTarget.y - 8, String(dmg), isCrit ? '#ff00aa' : undefined);
-        if (hitTarget.type === 'Boss') window.SCREEN_SHAKE = Math.max(window.SCREEN_SHAKE, 10);
+        if (hitTarget.type === 'Boss') window.__st.screenShake = Math.max(window.__st.screenShake, 10);
 
         if (this.type === 'arrow' && this.pierce > 0) {
           this.pierce--;

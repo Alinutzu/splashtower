@@ -65,6 +65,7 @@ class TDGameEngine {
     this._lastDailyClaim = 0;
     this.unlockedMaps = [true, false, false, false, false];
     this._tutorialSeen = false;
+    this._inGame = false;
 
     this._longPressTimer = null;
     this._longPressStartTime = 0;
@@ -288,6 +289,23 @@ class TDGameEngine {
     if (this.metaPoints < cost) return;
     this.metaPoints -= cost;
     this.upgrades[type]++;
+
+    if (this._inGame && type === 'extraShields') {
+      this.maxHp += 5;
+      this.hp = Math.min(this.hp + 5, this.maxHp);
+      this._updateHUD();
+      this._showToast('+5 HP maxim aplicat!');
+    } else if (this._inGame && type === 'architectDiscount') {
+      this._architectDiscount = this.upgrades.architectDiscount * 0.05;
+      for (const t of this.towers) t.discount = this._architectDiscount + (this.buffs.towerCostReduction || 0);
+      this._updateSidebarCosts();
+      this._showToast('Discount aplicat!');
+    } else if (this._inGame && type === 'startBonus') {
+      this.coins += 50;
+      this._updateHUD();
+      this._showToast('+50 monede primite!');
+    }
+
     this._saveProgress();
     this._updateShopUI();
     this.audio.play('tower_upgrade');
@@ -326,6 +344,7 @@ class TDGameEngine {
   _selectMap(index) {
     if (!this.unlockedMaps[index]) return;
     this.selectedMapIndex = index;
+    this._tutorialStep = 0;
     document.querySelectorAll('.map-card').forEach((c, i) => c.classList.toggle('selected', i === index));
   }
 
@@ -357,8 +376,9 @@ class TDGameEngine {
     this.pendingRow = -1;
     this._architectDiscount = discount;
     this.waveText = null;
-    window.DAMAGE_NUMBERS.length = 0;
-    window.SCREEN_SHAKE = 0;
+    window.__st.damageNumbers.length = 0;
+    window.__st.screenShake = 0;
+    this._inGame = true;
     this.state = 'PREPARE';
     this._showUI('none');
     this._syncFAB();
@@ -384,7 +404,7 @@ class TDGameEngine {
     if (this._cgInitialized && (this.state === 'VICTORY' || this.state === 'DEFEAT')) {
       try { window.CrazyGames.SDK.ad.requestAd('midgame'); } catch (_) {}
     }
-    this.state = 'MENU'; this.paused = false; this._updateMenuUI(); this._updateDailyRewardUI();
+    this.state = 'MENU'; this.paused = false; this._inGame = false; this._updateMenuUI(); this._updateDailyRewardUI();
     if (!this.unlockedMaps[this.selectedMapIndex]) {
       this.selectedMapIndex = this.unlockedMaps.findIndex(u => u);
     }
@@ -535,6 +555,23 @@ class TDGameEngine {
     return { x: (cx - rect.left) * sx, y: (cy - rect.top) * sy };
   }
 
+  _canPlaceAt(cell) {
+    return cell && !this.grid.isPathCell(cell.col, cell.row) && !this.towers.find(t => t.col === cell.col && t.row === cell.row);
+  }
+
+  _getTowerUIHit(pos) {
+    const tower = this.towers.find(t => t.hitTest(pos.x, pos.y));
+    if (!tower) return null;
+    const ui = window.TOWER_UI;
+    const uiY = tower.y + tower.grid.cellSize / 2 + ui.panelOffsetY;
+    return {
+      tower, uiY,
+      inUpgrade: pos.y > uiY + ui.clickUpgradeFrom && pos.y < uiY + ui.clickUpgradeTo,
+      inSell: pos.y > uiY + ui.clickSellFrom && pos.y < uiY + ui.clickSellTo,
+      inSniperTarget: tower.type === 'Sniper' && pos.y > uiY + ui.clickSnipFrom && pos.y < uiY + ui.clickSnipTo,
+    };
+  }
+
   _onClick(e) {
     if (this.state === 'MENU' || this.state === 'VICTORY' || this.state === 'DEFEAT' || this.state === 'PICK' || this.state === 'PAUSED') return;
     if (this.state === 'SHOP') return;
@@ -544,8 +581,7 @@ class TDGameEngine {
     const cell = this.grid.pixelToCell(pos.x, pos.y);
 
     if (this.selectedTowerType) {
-      if (this.grid.isPathCell(cell.col, cell.row)) return;
-      if (this.towers.find(t => t.col === cell.col && t.row === cell.row)) return;
+      if (!this._canPlaceAt(cell)) return;
       if (this.pendingCol === cell.col && this.pendingRow === cell.row) {
         this._placeTower(cell.col, cell.row);
         this.pendingCol = -1; this.pendingRow = -1;
@@ -553,20 +589,17 @@ class TDGameEngine {
       return;
     }
 
-    const hitTower = this.towers.find(t => t.hitTest(pos.x, pos.y));
-    if (hitTower) {
-      const uiY = hitTower.y + hitTower.grid.cellSize / 2 + 4;
-      const inUpgrade = pos.y > uiY + 30 && pos.y < uiY + 44;
-      const inSell = pos.y > uiY + 48 && pos.y < uiY + 62;
-      if (this.selectedGridTower === hitTower) {
-        if (inSell) { this._sellTower(hitTower); return; }
-        if (inUpgrade) { this._upgradeTower(hitTower); return; }
-        if (hitTower.type === 'Sniper' && pos.y > uiY + 58 && pos.y < uiY + 70) {
-          hitTower.targetMode = hitTower.targetMode === 'first' ? 'strongest' : 'first';
+    const hit = this._getTowerUIHit(pos);
+    if (hit) {
+      if (this.selectedGridTower === hit.tower) {
+        if (hit.inSell) { this._sellTower(hit.tower); return; }
+        if (hit.inUpgrade) { this._upgradeTower(hit.tower); return; }
+        if (hit.inSniperTarget) {
+          hit.tower.targetMode = hit.tower.targetMode === 'first' ? 'strongest' : 'first';
           return;
         }
       }
-      this.selectedGridTower = hitTower;
+      this.selectedGridTower = hit.tower;
       this.selectedTowerType = null;
       this.pendingCol = -1; this.pendingRow = -1;
       this._updateSidebarSelection();
@@ -720,8 +753,7 @@ class TDGameEngine {
 
   _handleTouchCell(cell, pos) {
     if (this.selectedTowerType) {
-      if (this.grid.isPathCell(cell.col, cell.row)) return;
-      if (this.towers.find(t => t.col === cell.col && t.row === cell.row)) return;
+      if (!this._canPlaceAt(cell)) return;
       if (this.pendingCol === cell.col && this.pendingRow === cell.row && this._touchPending) {
         this._placeTower(cell.col, cell.row);
         this.pendingCol = -1; this.pendingRow = -1; this._touchPending = false;
@@ -732,23 +764,20 @@ class TDGameEngine {
       }
       return;
     }
-    const hitTower = this.towers.find(t => t.hitTest(pos.x, pos.y));
-    if (hitTower) {
-      if (this._popupActive && this._popupTower !== hitTower) this._closeTowerPopup();
-      if (this._popupActive && this._popupTower === hitTower) return;
-      const uiY = hitTower.y + hitTower.grid.cellSize / 2 + 4;
-      const inUpgrade = pos.y > uiY + 30 && pos.y < uiY + 44;
-      const inSell = pos.y > uiY + 48 && pos.y < uiY + 62;
-      if (this.selectedGridTower === hitTower) {
-        if (inSell) { this._sellTower(hitTower); this._closeTowerPopup(); return; }
-        if (inUpgrade) { this._upgradeTower(hitTower); this._popupActive ? this._showTowerPopup(hitTower, hitTower.x, hitTower.y) : null; return; }
-        if (hitTower.type === 'Sniper' && pos.y > uiY + 58 && pos.y < uiY + 70) {
-          hitTower.targetMode = hitTower.targetMode === 'first' ? 'strongest' : 'first';
-          if (this._popupActive) this._showTowerPopup(hitTower, hitTower.x, hitTower.y);
+    const hit = this._getTowerUIHit(pos);
+    if (hit) {
+      if (this._popupActive && this._popupTower !== hit.tower) this._closeTowerPopup();
+      if (this._popupActive && this._popupTower === hit.tower) return;
+      if (this.selectedGridTower === hit.tower) {
+        if (hit.inSell) { this._sellTower(hit.tower); this._closeTowerPopup(); return; }
+        if (hit.inUpgrade) { this._upgradeTower(hit.tower); this._popupActive ? this._showTowerPopup(hit.tower, hit.tower.x, hit.tower.y) : null; return; }
+        if (hit.inSniperTarget) {
+          hit.tower.targetMode = hit.tower.targetMode === 'first' ? 'strongest' : 'first';
+          if (this._popupActive) this._showTowerPopup(hit.tower, hit.tower.x, hit.tower.y);
           return;
         }
       }
-      this.selectedGridTower = hitTower;
+      this.selectedGridTower = hit.tower;
       this.selectedTowerType = null; this.pendingCol = -1; this.pendingRow = -1;
       this._updateSidebarSelection();
     } else {
@@ -805,9 +834,9 @@ class TDGameEngine {
     if (this.paused) { this.lastTime = ts; requestAnimationFrame(this._boundLoop); return; }
     const dt = Math.min((ts - this.lastTime) / 1000, 0.05) * this.gameSpeed;
     this.lastTime = ts;
-    if (window.SCREEN_SHAKE > 0) {
-      window.SCREEN_SHAKE *= 0.85;
-      if (window.SCREEN_SHAKE < 0.5) window.SCREEN_SHAKE = 0;
+    if (window.__st.screenShake > 0) {
+      window.__st.screenShake *= 0.85;
+      if (window.__st.screenShake < 0.5) window.__st.screenShake = 0;
     }
     this.update(dt);
     this.render();
@@ -829,7 +858,7 @@ class TDGameEngine {
       if (!e.alive) {
         if (e.escaped) {
           this.hp -= e.type === 'Boss' ? 5 : 1;
-          window.SCREEN_SHAKE = Math.max(window.SCREEN_SHAKE, e.type === 'Boss' ? 12 : 6);
+          window.__st.screenShake = Math.max(window.__st.screenShake, e.type === 'Boss' ? 12 : 6);
           this.audio.play('enemy_escape');
           this.particles.splash(e.x, e.y, '#ff00aa', 8);
         } else {
@@ -848,12 +877,12 @@ class TDGameEngine {
       }
     }
 
-    for (let i = window.DAMAGE_NUMBERS.length - 1; i >= 0; i--) {
-      const dn = window.DAMAGE_NUMBERS[i];
+    for (let i = window.__st.damageNumbers.length - 1; i >= 0; i--) {
+      const dn = window.__st.damageNumbers[i];
       dn.life += dt;
       dn.y += dn.vy * dt;
       if (dn.life >= dn.maxLife) {
-        window.DAMAGE_NUMBERS.splice(i, 1);
+        window.__st.damageNumbers.splice(i, 1);
       }
     }
 
@@ -873,7 +902,7 @@ class TDGameEngine {
     this.coins += bonus;
     this.totalCoinsEarned += bonus;
 
-    window.SCREEN_SHAKE = Math.max(window.SCREEN_SHAKE, 8);
+    window.__st.screenShake = Math.max(window.__st.screenShake, 8);
     this.waveText = { text: `VALUL ${wn} COMPLETAT!`, timer: 0, duration: 2.5 };
 
     if (wn >= this.wave.totalWaves) {
@@ -897,7 +926,7 @@ class TDGameEngine {
 
   _onDefeat() {
     this.state = 'DEFEAT';
-    window.SCREEN_SHAKE = Math.max(window.SCREEN_SHAKE, 14);
+    window.__st.screenShake = Math.max(window.__st.screenShake, 14);
     this._pendingRevive = this._cgInitialized;
     if (this._cgInitialized) {
       document.getElementById('btn-revive').classList.remove('hidden');
@@ -913,6 +942,7 @@ class TDGameEngine {
       this._pendingRevive = false;
       this.hp = Math.min(this.maxHp, this.hp + 5);
       this.state = 'WAVE';
+      this._prePauseState = 'WAVE';
       this._showUI('none');
       document.getElementById('btn-pause').textContent = '⏸';
       document.getElementById('btn-revive').classList.add('hidden');
@@ -1055,9 +1085,9 @@ class TDGameEngine {
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     ctx.save();
-    if (window.SCREEN_SHAKE > 0.5) {
-      const sx = (Math.random() - 0.5) * window.SCREEN_SHAKE * 2;
-      const sy = (Math.random() - 0.5) * window.SCREEN_SHAKE * 2;
+    if (window.__st.screenShake > 0.5) {
+      const sx = (Math.random() - 0.5) * window.__st.screenShake * 2;
+      const sy = (Math.random() - 0.5) * window.__st.screenShake * 2;
       ctx.translate(sx, sy);
     }
 
@@ -1108,7 +1138,7 @@ class TDGameEngine {
   }
 
   _drawDamageNumbers(ctx) {
-    for (const dn of window.DAMAGE_NUMBERS) {
+    for (const dn of window.__st.damageNumbers) {
       const alpha = 1 - dn.life / dn.maxLife;
       ctx.save();
       ctx.globalAlpha = alpha;

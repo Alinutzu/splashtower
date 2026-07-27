@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Sketch Towers — Tests</title>
+  <style>
+    body { background: #1a1a1a; color: #e0d9c8; font-family: monospace; padding: 20px; }
+    h1 { color: #00f0ff; }
+    .pass { color: #00ff88; }
+    .fail { color: #ff00aa; }
+    .suite { margin: 12px 0; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid #605848; }
+    .suite.pass { border-left-color: #00ff88; }
+    .suite.fail { border-left-color: #ff00aa; }
+    .suite-title { font-weight: 700; margin-bottom: 4px; }
+    .test { font-size: 13px; margin: 2px 0; padding-left: 16px; }
+    #results { margin-top: 16px; font-size: 16px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Sketch Towers — Test Suite</h1>
+  <div id="output"></div>
+  <div id="results"></div>
+
+  <script>
+    const output = document.getElementById('output');
+    let total = 0, passed = 0, failed = 0;
+
+    function suite(name, tests) {
+      total++;
+      const div = document.createElement('div');
+      div.className = 'suite';
+      div.innerHTML = `<div class="suite-title">${name}</div>`;
+      let ok = true;
+      for (const [label, fn] of Object.entries(tests)) {
+        const t = document.createElement('div');
+        t.className = 'test';
+        try {
+          fn();
+          t.classList.add('pass');
+          t.textContent = '✓ ' + label;
+          passed++;
+        } catch (e) {
+          t.classList.add('fail');
+          t.textContent = '✗ ' + label + ' — ' + e.message;
+          ok = false;
+          failed++;
+        }
+        div.appendChild(t);
+      }
+      div.classList.add(ok ? 'pass' : 'fail');
+      output.appendChild(div);
+    }
+
+    function assert(cond, msg) { if (!cond) throw new Error(msg || 'assertion failed'); }
+    function eq(a, b) { assert(a === b, `expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); }
+
+    // ---- Run tests ----
+
+    suite('TOWER_DATA', {
+      '5 tower types': () => eq(Object.keys(TOWER_DATA).length, 5),
+      'Arrow cost 50': () => eq(TOWER_DATA.Arrow.cost, 50),
+      'Arrow damage 10': () => eq(TOWER_DATA.Arrow.damage, 10),
+      'Arrow range 3': () => eq(TOWER_DATA.Arrow.range, 3),
+      'Cannon cost 100': () => eq(TOWER_DATA.Cannon.cost, 100),
+      'Cannon aoe 1': () => eq(TOWER_DATA.Cannon.aoe, 1),
+      'Ice slow 0.5': () => eq(TOWER_DATA.Ice.slow, 0.5),
+      'Lightning chain 2': () => eq(TOWER_DATA.Lightning.chain, 2),
+      'Sniper range 6': () => eq(TOWER_DATA.Sniper.range, 6),
+    });
+
+    suite('ENEMY_DATA', {
+      '5 enemy types': () => eq(Object.keys(ENEMY_DATA).length, 5),
+      'Grunt HP 80': () => eq(ENEMY_DATA.Grunt.hp, 80),
+      'Scout speed 2.0': () => eq(ENEMY_DATA.Scout.speed, 2.0),
+      'Tank coins 25': () => eq(ENEMY_DATA.Tank.coins, 25),
+      'Boss HP 500': () => eq(ENEMY_DATA.Boss.hp, 500),
+    });
+
+    suite('Maps', {
+      '5 maps defined': () => eq(MAP_DEFS.length, 5),
+      'First map waypoints': () => assert(MAP_DEFS[0].waypoints.length > 0, 'no waypoints'),
+      'All maps have name': () => MAP_DEFS.forEach((m, i) => assert(m.name, `map ${i} missing name`)),
+      'All maps have icon': () => MAP_DEFS.forEach((m, i) => assert(m.icon, `map ${i} missing icon`)),
+    });
+
+    suite('UPGRADE_COSTS', {
+      '3 levels': () => eq(UPGRADE_COSTS.length, 3),
+      'Level 1 cost 100': () => eq(UPGRADE_COSTS[0], 100),
+      'Level 2 cost 250': () => eq(UPGRADE_COSTS[1], 250),
+      'Level 3 cost 500': () => eq(UPGRADE_COSTS[2], 500),
+    });
+
+    suite('Tower upgrades', {
+      'level 2 → 1.5x damage': () => eq(new Tower(0, 0, { cellSize: 40 }, 'Arrow', {}).recalc({}), undefined),
+      'upgrade cost level 1→2': () => {
+        const t = new Tower(0, 0, { cellSize: 40 }, 'Arrow', {});
+        const cost = t.getUpgradeCost();
+        eq(cost, Math.ceil(50 * 0.75));
+      },
+      'upgrade returns cost': () => {
+        const t = new Tower(0, 0, { cellSize: 40 }, 'Arrow', {});
+        eq(t.upgrade({}), Math.ceil(50 * 0.75));
+      },
+      'max level returns -1': () => {
+        const t = new Tower(0, 0, { cellSize: 40 }, 'Arrow', {});
+        t.level = 3;
+        eq(t.getUpgradeCost(), -1);
+      },
+      'sell value 75%': () => {
+        const t = new Tower(0, 0, { cellSize: 40 }, 'Arrow', {});
+        eq(t.getSellValue(), Math.floor(50 * 0.75));
+      },
+    });
+
+    suite('Wave config', {
+      'wave 1 hpMult 1.0': () => {
+        const w = new Wave();
+        const cfg = w.getWaveConfig(1);
+        eq(cfg.hpMult, 1);
+      },
+      'wave 5 hpMult scales': () => {
+        const w = new Wave();
+        const cfg = w.getWaveConfig(5);
+        assert(cfg.hpMult > 1, 'hpMult should be > 1 at wave 5');
+      },
+      'totalWaves = 20': () => {
+        const w = new Wave();
+        eq(w.totalWaves, 20);
+      },
+    });
+
+    suite('TOWER_UI', {
+      'constants defined': () => {
+        assert(typeof TOWER_UI !== 'undefined', 'TOWER_UI not defined');
+        assert(TOWER_UI.panelW > 0, 'panelW should be > 0');
+        assert(TOWER_UI.sniperH > TOWER_UI.defaultH, 'sniperH should be taller than defaultH');
+      },
+    });
+
+    suite('buildWaypoints', {
+      'generates pixel coords': () => {
+        const wp = buildWaypoints(MAP_DEFS[0], 40);
+        assert(wp.length > 0, 'should return waypoints');
+        assert(typeof wp[0].x === 'number', 'x should be number');
+        assert(typeof wp[0].y === 'number', 'y should be number');
+      },
+    });
+
+    // ---- Summary ----
+    const results = document.getElementById('results');
+    const color = failed === 0 ? '#00ff88' : '#ff00aa';
+    results.innerHTML = `<span style="color:${color}">${passed} passed, ${failed} failed, ${total} suites</span>`;
+  </script>
+</body>
+</html>

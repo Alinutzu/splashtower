@@ -195,20 +195,21 @@ class Tower {
   drawUI(ctx, coins) {
     ctx.save();
     const s = this.grid.cellSize; const cx = this.x; const cy = this.y;
-    const panelH = this.type === 'Sniper' ? 76 : 64;
-    ctx.fillStyle = 'rgba(18,18,22,0.92)'; ctx.fillRect(cx - 44, cy + s / 2 + 4, 88, panelH);
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.strokeRect(cx - 44, cy + s / 2 + 4, 88, panelH);
+    const ui = window.TOWER_UI;
+    const panelH = this.type === 'Sniper' ? ui.sniperH : ui.defaultH;
+    ctx.fillStyle = 'rgba(18,18,22,0.92)'; ctx.fillRect(cx - ui.panelX, cy + s / 2 + ui.panelOffsetY, ui.panelW, panelH);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.strokeRect(cx - ui.panelX, cy + s / 2 + ui.panelOffsetY, ui.panelW, panelH);
     ctx.fillStyle = '#e0d9c8'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(`${this.type} Lv${this.level}`, cx, cy + s / 2 + 18);
+    ctx.fillText(`${this.type} Lv${this.level}`, cx, cy + s / 2 + ui.labelY);
     ctx.font = '9px sans-serif'; ctx.fillStyle = '#ffe600';
-    ctx.fillText(`D:${this.damage} R:${this.getRangeInCells()}`, cx, cy + s / 2 + 30);
+    ctx.fillText(`D:${this.damage} R:${this.getRangeInCells()}`, cx, cy + s / 2 + ui.statsY);
     const upgCost = this.getUpgradeCost(); const sellValue = this.getSellValue();
-    if (upgCost > 0) { ctx.fillStyle = coins >= upgCost ? '#00f0ff' : '#605848'; ctx.fillText(`↑ ${upgCost}🪙`, cx, cy + s / 2 + 42); }
-    else { ctx.fillStyle = '#ff00aa'; ctx.fillText('MAX', cx, cy + s / 2 + 42); }
-    ctx.fillStyle = '#a09880'; ctx.font = '8px sans-serif'; ctx.fillText(`Sell ${sellValue}🪙`, cx, cy + s / 2 + 52);
+    if (upgCost > 0) { ctx.fillStyle = coins >= upgCost ? '#00f0ff' : '#605848'; ctx.fillText(`↑ ${upgCost}🪙`, cx, cy + s / 2 + ui.upgradeY); }
+    else { ctx.fillStyle = '#ff00aa'; ctx.fillText('MAX', cx, cy + s / 2 + ui.upgradeY); }
+    ctx.fillStyle = '#a09880'; ctx.font = '8px sans-serif'; ctx.fillText(`Sell ${sellValue}🪙`, cx, cy + s / 2 + ui.sellY);
     if (this.type === 'Sniper') {
       ctx.fillStyle = '#00f0ff'; ctx.font = '8px sans-serif';
-      ctx.fillText(this.targetMode === 'first' ? '🎯 First' : '💪 Strongest', cx, cy + s / 2 + 64);
+      ctx.fillText(this.targetMode === 'first' ? '🎯 First' : '💪 Strongest', cx, cy + s / 2 + ui.sniperTargetY);
     }
     ctx.restore();
   }
@@ -217,12 +218,34 @@ class Tower {
     const dx = px - this.x; 
     const dy = py - this.y; 
     const s = this.grid.cellSize;
-    const panelH = this.type === 'Sniper' ? 76 : 64;
-    const inCircle = dx * dx + dy * dy < 30 * 30;
-    const inUI = py > this.y + s / 2 && py < this.y + s / 2 + panelH && Math.abs(px - this.x) < 44;
+    const ui = window.TOWER_UI;
+    const panelH = this.type === 'Sniper' ? ui.sniperH : ui.defaultH;
+    const inCircle = dx * dx + dy * dy < ui.hitRadius * ui.hitRadius;
+    const inUI = py > this.y + s / 2 && py < this.y + s / 2 + panelH && Math.abs(px - this.x) < ui.panelX;
     return inCircle || inUI;
   }
 }
 
+const TOWER_UI = {
+  panelW: 88,
+  panelX: 44,
+  panelOffsetY: 4,
+  labelY: 18,
+  statsY: 30,
+  upgradeY: 42,
+  sellY: 52,
+  sniperTargetY: 64,
+  sniperH: 76,
+  defaultH: 64,
+  hitRadius: 30,
+  clickUpgradeFrom: 30,
+  clickUpgradeTo: 44,
+  clickSellFrom: 48,
+  clickSellTo: 62,
+  clickSnipFrom: 58,
+  clickSnipTo: 70,
+};
+
 window.Tower = Tower;
 window.TOWER_DATA = TOWER_DATA;
+window.TOWER_UI = TOWER_UI;
