@@ -11,8 +11,41 @@
   <title>Sketch Towers — Splash TD</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js" async></script>
+  <style>
+    #mobile-notice {
+      position: fixed;
+      inset: 0;
+      background: #1a1a1a;
+      color: #e0d9c8;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 24px;
+      text-align: center;
+      z-index: 9999;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    #mobile-notice svg { width: 80px; height: 80px; opacity: 0.6; }
+    #mobile-notice h2 { font-size: 28px; font-weight: 800; color: #fff; margin: 0; }
+    #mobile-notice p { font-size: 16px; line-height: 1.6; max-width: 320px; margin: 0; color: #a09880; }
+    @media (max-width: 768px) {
+      #mobile-notice { display: flex; }
+      #game-wrapper { display: none; }
+    }
+  </style>
 </head>
 <body>
+  <div id="mobile-notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <path d="M8 21h8M12 17v4"/>
+    </svg>
+    <h2>Jocul e pentru desktop</h2>
+    <p>Sketch Towers e optimizat pentru tastatură și mouse.<br>Te rog deschide pe calculator pentru cea mai bună experiență.</p>
+  </div>
+
   <div id="game-wrapper">
     <canvas id="game-canvas"></canvas>
 
