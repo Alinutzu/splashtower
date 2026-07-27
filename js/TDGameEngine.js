@@ -179,13 +179,16 @@ class TDGameEngine {
     const wrapper = document.getElementById('game-wrapper');
     const sidebar = document.getElementById('hud-sidebar');
     const mobileBar = document.getElementById('mobile-tower-bar');
+    const infoStrip = document.getElementById('info-strip');
     const sidebarW = sidebar && getComputedStyle(sidebar).display !== 'none' ? 120 : 0;
-    const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? 76 : 0;
+    const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? 72 : 0;
+    const infoStripH = infoStrip && getComputedStyle(infoStrip).display !== 'none' ? 44 : 0;
+    const topMargin = infoStripH > 0 ? 20 : 44;
     const vv = window.visualViewport;
     const vw = vv && vv.width ? vv.width : wrapper.clientWidth;
     const vh = vv && vv.height ? vv.height : wrapper.clientHeight;
     const avW = vw - sidebarW;
-    const avH = vh - 44 - mobileBarH;
+    const avH = vh - topMargin - infoStripH - mobileBarH;
     if (avW <= 0 || avH <= 0) return;
     const ar = 800 / 600;
     let w = avW, h = avW / ar;
@@ -335,6 +338,7 @@ class TDGameEngine {
 
     this.buffs = {};
     this.pickChoices = [];
+    this._updateInfoBuffs();
     const bonusCoins = this.upgrades.startBonus * 50;
     const bonusHp = this.upgrades.extraShields * 5;
     const discount = this.upgrades.architectDiscount * 0.05;
@@ -475,6 +479,7 @@ class TDGameEngine {
     const choice = this.pickChoices[index];
     if (!choice) return;
     choice.apply(this.buffs);
+    this._updateInfoBuffs();
     this._recalcTowers();
     this.state = 'PREPARE';
     this._syncFAB();
@@ -1140,13 +1145,32 @@ class TDGameEngine {
   _updateHUD() {
     const last = this._lastHud;
     if (this.coins !== last.coins) { document.getElementById('coins-value').textContent = this.coins; last.coins = this.coins; }
-    if (this.wave.currentWave !== last.wave) { document.getElementById('wave-current').textContent = this.wave.currentWave; last.wave = this.wave.currentWave; }
+    if (this.wave.currentWave !== last.wave) {
+      document.getElementById('wave-current').textContent = this.wave.currentWave;
+      last.wave = this.wave.currentWave;
+      const infoWave = document.getElementById('info-wave');
+      if (infoWave) infoWave.textContent = `Val ${this.wave.currentWave}/${this.wave.totalWaves}`;
+    }
     const pct = Math.max(0, (this.hp / this.maxHp) * 100);
     if (this.hp !== last.hp || this.maxHp !== last.maxHp) {
       document.getElementById('hp-fill').style.width = pct + '%';
       document.getElementById('hp-text').textContent = `${this.hp}/${this.maxHp}`;
       last.hp = this.hp; last.maxHp = this.maxHp;
     }
+  }
+
+  _updateInfoBuffs() {
+    const el = document.getElementById('info-buffs');
+    if (!el) return;
+    const icons = [];
+    const iconMap = {
+      dmg: '⚔️', range: '🎯', speed: '⚡', cannon: '💣',
+      ice: '❄️', lightning: '🌩️', sniper: '🔫', discount: '💰', heal: '❤️'
+    };
+    for (const id of Object.keys(this.buffs)) {
+      if (iconMap[id]) icons.push(iconMap[id]);
+    }
+    el.textContent = icons.length > 0 ? icons.join(' ') : '';
   }
 
   // ---- Tutorial ----
