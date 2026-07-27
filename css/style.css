@@ -20,6 +20,7 @@ html, body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,15 +29,12 @@ html, body {
 
 #game-canvas {
   display: block;
-  width: 800px;
-  height: 600px;
   max-width: calc(100% - 120px);
   max-height: calc(100% - 44px);
   margin-top: 44px;
   background: #1e1e18;
   cursor: crosshair;
   touch-action: none;
-  aspect-ratio: 800 / 600;
 }
 
 #hud-top {
@@ -101,6 +99,7 @@ html, body {
   backdrop-filter: blur(4px);
   border-left: 1px solid rgba(255,255,255,0.06);
   z-index: 5;
+  overflow-y: auto;
 }
 
 .sidebar-title { font-size: 10px; color: #605848; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
@@ -580,8 +579,8 @@ html, body {
 
   #game-canvas {
     max-width: 100%;
-    max-height: calc(100vh - 80px);
-    margin-top: 0;
+    max-height: calc(100dvh - 44px - 80px);
+    margin-top: 44px;
   }
 
   #btn-fab-wave {
@@ -599,14 +598,14 @@ html, body {
 @media (max-width: 768px) and (orientation: landscape) {
   #game-wrapper {
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   #mobile-tower-bar { display: none; }
 
   #game-canvas {
     max-width: calc(100% - 120px);
-    max-height: calc(100vh - 44px);
+    max-height: calc(100dvh - 44px);
     margin-top: 44px;
   }
 

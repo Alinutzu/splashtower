@@ -82,6 +82,7 @@ class TDGameEngine {
     this.canvas.addEventListener('touchstart', this._boundTouchStart, { passive: false });
     this.canvas.addEventListener('touchend', this._boundTouchEnd, { passive: false });
     window.addEventListener('resize', this._boundResize);
+    window.addEventListener('orientationchange', this._boundResize);
     this._resize();
     this._isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     this._touchPending = false;
@@ -180,10 +181,11 @@ class TDGameEngine {
     const mobileBar = document.getElementById('mobile-tower-bar');
     const sidebarW = sidebar && getComputedStyle(sidebar).display !== 'none' ? 120 : 0;
     const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? 76 : 0;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const isMobileLayout = sidebarW === 0 && mobileBarH > 0;
-    const avW = wrapper.clientWidth - sidebarW;
-    const avH = wrapper.clientHeight - (isPortrait && isMobileLayout ? 0 : 44) - mobileBarH;
+    const vv = window.visualViewport;
+    const vw = vv && vv.width ? vv.width : wrapper.clientWidth;
+    const vh = vv && vv.height ? vv.height : wrapper.clientHeight;
+    const avW = vw - sidebarW;
+    const avH = vh - 44 - mobileBarH;
     if (avW <= 0 || avH <= 0) return;
     const ar = 800 / 600;
     let w = avW, h = avW / ar;
@@ -237,6 +239,7 @@ class TDGameEngine {
     this.canvas.removeEventListener('touchstart', this._boundTouchStart);
     this.canvas.removeEventListener('touchend', this._boundTouchEnd);
     window.removeEventListener('resize', this._boundResize);
+    window.removeEventListener('orientationchange', this._boundResize);
   }
 
   // ---- Persistence ----
