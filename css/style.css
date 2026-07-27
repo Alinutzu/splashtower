@@ -99,7 +99,7 @@ html, body {
   backdrop-filter: blur(4px);
   border-left: 1px solid rgba(255,255,255,0.06);
   z-index: 5;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .sidebar-title { font-size: 10px; color: #605848; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
@@ -643,8 +643,8 @@ html, body {
 /* ---- Mobile Landscape: 2-column grid sidebar, no scroll needed ---- */
 @media (max-height: 500px) and (orientation: landscape) {
   #game-wrapper {
-    align-items: center;
-    justify-content: flex-start;
+    align-items: flex-start;
+    justify-content: center;
   }
 
   #mobile-tower-bar { display: none; }
@@ -664,7 +664,7 @@ html, body {
     grid-template-rows: auto auto auto auto 1fr auto;
     gap: 3px;
     padding: 6px;
-    overflow-y: visible;
+    overflow: hidden;
   }
 
   .sidebar-title {
