@@ -180,9 +180,9 @@ class TDGameEngine {
     const sidebar = document.getElementById('hud-sidebar');
     const mobileBar = document.getElementById('mobile-tower-bar');
     const infoStrip = document.getElementById('info-strip');
-    const sidebarW = sidebar && getComputedStyle(sidebar).display !== 'none' ? 120 : 0;
-    const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? 72 : 0;
-    const infoStripH = infoStrip && getComputedStyle(infoStrip).display !== 'none' ? 44 : 0;
+    const sidebarW = sidebar && getComputedStyle(sidebar).display !== 'none' ? sidebar.offsetWidth : 0;
+    const mobileBarH = mobileBar && getComputedStyle(mobileBar).display !== 'none' ? mobileBar.offsetHeight : 0;
+    const infoStripH = infoStrip && getComputedStyle(infoStrip).display !== 'none' ? infoStrip.offsetHeight : 0;
     const topMargin = infoStripH > 0 ? 20 : 44;
     const vv = window.visualViewport;
     const vw = vv && vv.width ? vv.width : wrapper.clientWidth;
